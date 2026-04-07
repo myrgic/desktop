@@ -8,6 +8,8 @@ export function EnableService(arg1:string):Promise<boolean|string>;
 
 export function GetKernelHealth():Promise<Record<string, any>>;
 
+export function GetKernelStatus():Promise<string>;
+
 export function GetServices():Promise<Array<main.ServiceStatus>>;
 
 export function GetWorkspaceRoot():Promise<string>;

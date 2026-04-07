@@ -14,6 +14,10 @@ export function GetKernelHealth() {
   return window['go']['main']['App']['GetKernelHealth']();
 }
 
+export function GetKernelStatus() {
+  return window['go']['main']['App']['GetKernelStatus']();
+}
+
 export function GetServices() {
   return window['go']['main']['App']['GetServices']();
 }

@@ -14,11 +14,18 @@ import {
   StartService,
   StopService,
   EnableService,
-  GetKernelHealth,
+  GetKernelStatus,
 } from '../../wailsjs/go/main/App'
 import { main } from '../../wailsjs/go/models'
 
 type ServiceStatus = main.ServiceStatus
+
+type KernelStatusDisplay = {
+  processState: string
+  coherenceStatus: string
+  fieldSize: string
+  offline: boolean
+}
 
 /**
  * Desktop Settings view with service controls
@@ -32,6 +39,12 @@ function DesktopSettingsView() {
   const [theme, setTheme] = useState<'dark' | 'light'>('dark')
   const [debugMode, setDebugMode] = useState(false)
   const [debugLoading, setDebugLoading] = useState(true)
+  const [kernelStatus, setKernelStatus] = useState<KernelStatusDisplay>({
+    processState: 'Offline',
+    coherenceStatus: 'Offline',
+    fieldSize: 'Offline',
+    offline: true,
+  })
 
   const KERNEL_URL = 'http://localhost:5100'
 
@@ -46,14 +59,89 @@ function DesktopSettingsView() {
     }
   }, [])
 
+  const readValue = (obj: any, paths: string[][]): string | undefined => {
+    for (const path of paths) {
+      let current = obj
+      let found = true
+      for (const key of path) {
+        if (current && typeof current === 'object' && key in current) {
+          current = current[key]
+        } else {
+          found = false
+          break
+        }
+      }
+
+      if (!found || current === null || current === undefined) {
+        continue
+      }
+
+      if (typeof current === 'string' || typeof current === 'number' || typeof current === 'boolean') {
+        return String(current)
+      }
+
+      if (Array.isArray(current)) {
+        return String(current.length)
+      }
+    }
+
+    return undefined
+  }
+
+  const refreshKernelStatus = useCallback(async () => {
+    try {
+      const raw = await GetKernelStatus()
+      const data = JSON.parse(raw)
+
+      const processState = readValue(data, [
+        ['state', 'process'],
+        ['process', 'state'],
+        ['process_state'],
+        ['state'],
+      ]) ?? 'Unknown'
+
+      const coherenceStatus = readValue(data, [
+        ['trust', 'coherence'],
+        ['coherence', 'status'],
+        ['coherence'],
+        ['state', 'coherence'],
+      ]) ?? 'Unknown'
+
+      const fieldSize = readValue(data, [
+        ['state', 'field_size'],
+        ['field', 'size'],
+        ['attentional_field', 'size'],
+        ['context', 'field_size'],
+      ]) ?? 'Unknown'
+
+      setKernelStatus({
+        processState,
+        coherenceStatus,
+        fieldSize,
+        offline: false,
+      })
+    } catch {
+      setKernelStatus({
+        processState: 'Offline',
+        coherenceStatus: 'Offline',
+        fieldSize: 'Offline',
+        offline: true,
+      })
+    }
+  }, [])
+
   useEffect(() => {
     GetWorkspaceRoot().then(setWorkspaceRoot)
     refreshServices()
+    refreshKernelStatus()
 
     // Refresh every 10 seconds
-    const interval = setInterval(refreshServices, 10000)
+    const interval = setInterval(() => {
+      refreshServices()
+      refreshKernelStatus()
+    }, 10000)
     return () => clearInterval(interval)
-  }, [refreshServices])
+  }, [refreshServices, refreshKernelStatus])
 
   // Initialize theme and debug mode
   useEffect(() => {
@@ -212,6 +300,25 @@ function DesktopSettingsView() {
             >
               {debugLoading ? '...' : debugMode ? 'On' : 'Off'}
             </button>
+          </div>
+        </div>
+
+        {/* Services */}
+        <div className="bg-gray-800 rounded-lg p-4">
+          <h2 className="text-lg font-semibold mb-4">Kernel Status</h2>
+          <div className="space-y-2 text-sm">
+            <div className="flex items-center justify-between">
+              <span className="text-gray-400">Process State</span>
+              <span className={kernelStatus.offline ? 'text-red-400' : 'text-gray-200'}>{kernelStatus.processState}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-gray-400">Coherence</span>
+              <span className={kernelStatus.offline ? 'text-red-400' : 'text-gray-200'}>{kernelStatus.coherenceStatus}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-gray-400">Field Size</span>
+              <span className={kernelStatus.offline ? 'text-red-400' : 'text-gray-200'}>{kernelStatus.fieldSize}</span>
+            </div>
           </div>
         </div>
 

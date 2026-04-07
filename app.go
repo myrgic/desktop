@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"os/exec"
@@ -15,10 +16,9 @@ import (
 
 // Service labels
 const (
-	KernelLabel   = "com.cogos.kernel"
-	DefaultPort   = 5200 // fallback only — prefer reading from workspace config
+	KernelLabel = "com.cogos.kernel"
+	DefaultPort = 5200 // fallback only — prefer reading from workspace config
 )
-
 
 // ServiceStatus represents the status of a managed service
 type ServiceStatus struct {
@@ -302,4 +302,29 @@ func (a *App) GetKernelHealth() map[string]interface{} {
 	}
 
 	return health
+}
+
+// GetKernelStatus fetches raw status JSON from the kernel health endpoint.
+func (a *App) GetKernelStatus() (string, error) {
+	client := &http.Client{Timeout: 2 * time.Second}
+	resp, err := client.Get(fmt.Sprintf("http://localhost:%d/health", a.kernelPort))
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("kernel health request failed with status %d", resp.StatusCode)
+	}
+
+	if !json.Valid(body) {
+		return "", fmt.Errorf("kernel health response is not valid JSON")
+	}
+
+	return string(body), nil
 }
