@@ -30,7 +30,7 @@ CogOS.app (native macOS)
 └── WebView (native, not Electron)
 ```
 
-The desktop app reads the kernel port from `$WORKSPACE/.cog/config/kernel.yaml`. No port is hardcoded. If no config exists, it falls back to 5200.
+The desktop app reads the kernel port from `$WORKSPACE/.cog/config/kernel.yaml`. No port is hardcoded. If no config exists, it falls back to 6931.
 
 ## Prerequisites
 
