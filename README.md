@@ -1,7 +1,5 @@
 # CogOS Desktop
 
-> Part of the [CogOS ecosystem](https://github.com/cogos-dev) — **how you USE it**
-
 Native macOS application for CogOS. Wraps the kernel dashboard in a native window with integrated terminal, service management, and live kernel status monitoring.
 
 Built with [Wails](https://wails.io/) — Go backend, React/TypeScript frontend, native WebView (no Electron).
