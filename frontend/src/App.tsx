@@ -19,7 +19,7 @@ type Tab = 'terminal' | 'chat' | 'settings';
 
 // Port assignments governed by: cog://conf/ports
 // See: .cog/conf/ports.cog.md for canonical registry
-const KERNEL_URL = 'http://localhost:5100';  // cog://conf/ports#kernel
+const KERNEL_URL = 'http://localhost:6931';  // cog://conf/ports#kernel
 
 function App() {
   const [activeTab, setActiveTab] = useState<Tab>('terminal');
