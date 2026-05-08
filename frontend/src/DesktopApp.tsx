@@ -20,7 +20,7 @@ import { desktopSettingsPlugin } from './plugins/DesktopSettingsPlugin'
 import '@cogos/ui-core/styles.css'
 
 // Configure kernel URL (local by default)
-setKernelUrl('http://localhost:5100')
+setKernelUrl('http://localhost:6931')
 
 /**
  * DesktopApp - Main desktop application component
@@ -36,7 +36,7 @@ export function DesktopApp() {
       <SessionProvider>
         <PluginProvider
           config={{
-            kernelUrl: 'http://localhost:5100',
+            kernelUrl: 'http://localhost:6931',
             plugins: [terminalPlugin, desktopSettingsPlugin],
           }}
           defaultView="terminal"

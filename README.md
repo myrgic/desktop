@@ -54,7 +54,7 @@ This is the Tier 2 deployment model:
 |------|-------------|
 | Tier 1 — Developer | `cogos serve` in terminal |
 | **Tier 2 — User** | **Double-click CogOS.app** |
-| Tier 3 — Production | `helm install` via cogos-dev/charts |
+| Tier 3 — Production | `helm install` via myrgic/charts |
 
 Same kernel, same dashboard, same API — different packaging.
 

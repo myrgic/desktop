@@ -46,7 +46,7 @@ function DesktopSettingsView() {
     offline: true,
   })
 
-  const KERNEL_URL = 'http://localhost:5100'
+  const KERNEL_URL = 'http://localhost:6931'
 
   const refreshServices = useCallback(async () => {
     try {
